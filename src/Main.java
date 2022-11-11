@@ -1,4 +1,5 @@
 import java.util.*;
+import java.io.PrintWriter;
 
 public class Main {
     // Creating a collection of type car as arrayList
@@ -7,39 +8,24 @@ public class Main {
     static TransactionsManager manager = new TransactionsManager();
     static Scanner sc= new Scanner(System.in);
     static String newLine = System.getProperty("line.separator");
-    public static void main(String[] args) {
-        setupCarsCollection();
-        setupCustomerCollection();
-        setupTransactions();
 
-        // User Input
-        System.out.print("Welcome to Makddad Rental!!" + newLine + "--> ");
-        // You need to take user credintals before entering the loop and storing it in customerList
-        int input = 0;
-        do {
-            System.out.print(newLine + "** Enter a number to proceed **" + newLine + "- 1 to book a car" + newLine + "- 2 to add a car" + newLine + "- 0 to exit" + newLine + "--> ");
-            input = sc.nextInt();
-            if  (input == 1) {
-                bookACar();
-            } else if (input == 2) {
-                addCar();
-            }
-        } while (input != 0);
-    }
-
-    static void setupTransactions(){
-        // Same car different day
-        manager.makeTransaction(carsList.get(0), customerList.get(0), new Date(1,1,2022));
-        manager.makeTransaction(carsList.get(0), customerList.get(1), new Date(2,1,2022));
-
-        manager.makeTransaction(carsList.get(1), customerList.get(0), new Date(1,1,2022));
-        manager.makeTransaction(carsList.get(1), customerList.get(2), new Date(2,1,2022));
-
-        manager.makeTransaction(carsList.get(2), customerList.get(2), new Date(1,1,2022));
-        manager.makeTransaction(carsList.get(2), customerList.get(0), new Date(2,1,2022));
-    }
+    static Customer currentCustomer;
 
     static void  bookACar() {
+        Customer finalCustomer;
+        // To rent to a specific customer
+        System.out.print(newLine + "Do you want it to be booked for a specific customer? (Y/N): " + newLine);
+        String answer= sc.next();
+        if (answer.equals("Y") || answer.equals("y")) {
+            System.out.print(newLine + "Choose a customer: " + newLine);
+            showCustomers();
+            int customerIndex = sc.nextInt();
+            finalCustomer = customerList.get(customerIndex);
+
+        } else {
+            finalCustomer = currentCustomer;
+        }
+
         System.out.print(newLine + "Choose a car based on the number:" + newLine);
         showCars();
         System.out.print("--> ");
@@ -57,56 +43,62 @@ public class Main {
         Boolean isAvaliable = manager.checkAvaliblity(desiredCar, requestedDate);
         if (isAvaliable){
             desiredCar.rentCounter += 1;
-            manager.makeTransaction(desiredCar, customerList.get(1), requestedDate);
+            manager.makeTransaction(desiredCar, finalCustomer, requestedDate);
         }
     }
 
     static void addCar() {
         showCars();
-        System.out.print(newLine + "Enter the name of the car:" + newLine);
-        System.out.print("--> ");
-        String name = sc.next();
-        System.out.print(newLine + "Enter the plate number:" + newLine);
-        System.out.print("--> ");
-        String plate = sc.next();
-        System.out.print(newLine + "Enter the brand:" + newLine);
-        System.out.print("--> ");
-        String brand = sc.next();
-        System.out.print(newLine + "Enter the rental rate:" + newLine);
-        System.out.print("--> ");
-        double rentalRate = sc.nextDouble();
-        System.out.print(newLine + "Enter the milage:" + newLine);
-        System.out.print("--> ");
-        int milage = sc.nextInt();
-        System.out.print(newLine + "Enter the color:" + newLine);
-        System.out.print("--> ");
-        String color = sc.next();
-        System.out.print(newLine + "Enter the version:" + newLine);
-        System.out.print("--> ");
-        String version = sc.next();
-        Car result = new Car( name,  plate,brand, rentalRate, milage,  version, color, false, 0);
-        carsList.add(result);
-        System.out.print("Car was added successfully!!");
+        boolean isDone = false;
+        do {
+            try {
+                System.out.println(newLine + "Enter the name of the car:" + newLine);
+                String name = sc.next();
+                System.out.println(newLine + "Enter the rental rate:" + newLine);
+                int rentalRate = sc.nextInt();
+                sc.nextLine();
+                System.out.println(newLine + "Enter the milage:" + newLine);
+                int milage = sc.nextInt();
+                System.out.println(newLine + "Enter the plate number:" + newLine);
+                String plate = sc.next();
+                System.out.println(newLine + "Enter the brand:" + newLine);
+                String brand = sc.next();
+                System.out.println(newLine + "Enter the color:" + newLine);
+                String color = sc.next();
+                System.out.println(newLine + "Enter the version:" + newLine);
+                String version = sc.next();
+                Car car = new Car( name,  plate,brand, rentalRate, milage,  version, color, false, 0);
+                if (validateCars(car)) {
+                    carsList.add(car);
+                    System.out.print("Car was added successfully!!");
+                    isDone = true;
+                } else {
+                    System.out.print("Failed to add car, already existed");
+                }
+            }
+            catch (Exception e) {
+                System.out.println ("Please enter a valid value!");
+            }
+        } while (isDone == false);
     }
 
-    static void setupCarsCollection() {
-        Car first = new Car( "Camry",  "AAA123","Toyota", 609.00, 23732,  "Limited", "Blue", false, 0);
-        Car second = new Car( "Sonata",  "BBB123","Hyundia", 408.4, 96000,  "Standard", "White", false, 0);
-        Car third = new Car( "Patrol",  "CCC123","Nissan", 1199.00, 71732,  "Black Edition", "Black", false, 0);
-        Car fourth = new Car( "K5",  "DDD123","Kia", 394.00, 29732,  "Full Option", "Red", false, 0);
-        carsList.add(first);
-        carsList.add(second);
-        carsList.add(third);
-        carsList.add(fourth);
-    };
-    static void setupCustomerCollection() {
-        Customer first = new Customer(1876549287, "Makddad Almakbout", "AlAhsaa", "Saudi Arabian");
-        Customer second = new Customer(1076964687, "Turki Sakhm", "Riyadh", "Saudi Arabian");
-        Customer third = new Customer(1936549287, "Dox Almodax", "Dammam", "Saudi Arabian");
-        customerList.add(first);
-        customerList.add(second);
-        customerList.add(third);
-    };
+    static boolean validateCars(Car car){
+        for(int i = 0; i <= carsList.stream().count() - 1; i = i + 1) {
+            if (carsList.get(i).plateNumber.equals(car.plateNumber) ) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    static boolean validateCustomer(Customer customer){
+        for(int i = 0; i <= customerList.stream().count() - 1; i = i + 1) {
+            if (customerList.get(i).civilID.equals(customer.civilID) ) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     static void showCars() {
         System.out.print(" -- Current Cars:" + newLine);
@@ -114,4 +106,104 @@ public class Main {
             System.out.print("- " + i + " Name: " + carsList.get(i).carName + " Plate: " + carsList.get(i).plateNumber + newLine + "Color: " +carsList.get(i).color + newLine + "Version: " +carsList.get(i).carVersion + newLine);
         }
     }
+
+    static void showCustomers() {
+        for(int i = 0; i <= customerList.stream().count() - 1; i = i + 1) {
+            System.out.print(newLine + "- " + i + " Name: " + customerList.get(i).name + " ID: " + customerList.get(i).civilID  + " City: " + customerList.get(i).cityOfBirth);
+        }
+        System.out.print(newLine + newLine + "Enter the index number of the customer:  ");
+    }
+
+    static void  printIntoTxt() {
+        carsList.sort(Comparator.comparing(Car::getPlateNumber));
+        try
+        {
+            PrintWriter pr = new PrintWriter("assignmentFile");
+            pr.println(newLine + "** CARS **" + newLine);
+            for (int i=0; i<carsList.stream().count() - 1 ; i++)
+            {
+                pr.println( "- " + i + " Name: " + carsList.get(i).carName + " Plate: " + carsList.get(i).plateNumber + newLine + "Color: " +carsList.get(i).color + newLine + "Version: " +carsList.get(i).carVersion + newLine);
+            }
+            pr.println(newLine + "** TRANSACTIONS **" + newLine);
+            for (int i=0; i<manager.getTransactionsList().stream().count() - 1 ; i++)
+            {
+                pr.println("Customer: " + manager.getTransactionsList().get(i).customer.name + newLine);
+                pr.println("Data: " + manager.getTransactionsList().get(i).date.day + "/" + manager.getTransactionsList().get(i).date.month + "/" + manager.getTransactionsList().get(i).date.year +  newLine);
+                pr.println("Car: " + manager.getTransactionsList().get(i).car.carName + newLine + newLine);
+            }
+            pr.println(newLine + "** CUSTOMERS **" + newLine);
+            for (int i=0; i<customerList.stream().count() - 1 ; i++)
+            {
+                pr.println("NAME: " + customerList.get(i).name + newLine);
+                pr.println("CITY: " + customerList.get(i).cityOfBirth + newLine);
+                pr.println("ID: " + customerList.get(i).civilID + newLine + newLine);
+            }
+            pr.close();
+            System.out.println("SAVED INTO PROJECT DIREACTORY");
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            System.out.println("No such file exists.");
+        }
+    }
+
+    static void setup(){
+        System.out.print("Welcome to Makddad Rental!!" + newLine + "--> ");
+        System.out.print(newLine + "** Enter your credentials **" + newLine);
+        // Cutomer creation
+        int customerInput = 0;
+        boolean isDone = false;
+        // Conver the loop to be a bollen loop
+        do {
+            try {
+                System.out.println(newLine + "-Name: ");
+                String customerName = sc.nextLine();
+                System.out.println(newLine + "-Civil ID: ");
+                int civilID = sc.nextInt();
+                sc.nextLine();
+                System.out.println(newLine + "-City: ");
+                String customerCity = sc.nextLine();
+                System.out.println(newLine + "-Nationality: ");
+                String customerCountry = sc.nextLine();
+                currentCustomer = new Customer(civilID,customerName,customerCity,customerCountry);
+                if (validateCustomer(currentCustomer)) {
+                    customerList.add(currentCustomer);
+                    System.out.print("Customer was added successfully!!");
+                    isDone = true;
+                } else {
+                    System.out.print("Failed to add customer, already existed");
+                }
+            }
+            catch (Exception e) {
+                System.out.println ("Please enter a valid value!");
+            }
+        } while (isDone == false);
+
+        // User Input
+
+        int userInput = 0;
+        do {
+            try {
+                System.out.print(newLine + "** Enter a number to proceed **" + newLine + "- 1 Book a car" + newLine + "- 2 Add a car" + newLine + "- 3 Show transactions" + newLine + "- 4 Most rented car" + newLine + "- 5 Print into txt file" + newLine + "- 0 to exit"  + newLine + "--> ");
+                userInput = sc.nextInt();
+                if  (userInput == 1) {
+                    bookACar();
+                } else if (userInput == 2) {
+                    addCar();
+                } else if (userInput == 3) {
+                    manager.showTransactions();
+                } else if (userInput == 4) {
+                    manager.showMostRentedCar();
+                } else if (userInput == 5) {
+                    printIntoTxt();
+                } else if (userInput == 0) {
+                    printIntoTxt();
+                }
+            } catch (Exception e) {
+                System.out.println ("Please enter a valid value!");
+            }
+        } while (userInput != 0);
+    }
+
 }

@@ -4,7 +4,7 @@ public class Car {
     String carName;
     String plateNumber;
     String brand;
-    Double rentalRate;
+    int rentalRate;
     Integer milage;
     String carVersion;
     String color;
@@ -13,7 +13,7 @@ public class Car {
     Integer rentCounter = 0;
 
     // Constructer
-    public Car(String carName, String plateNumber, String brand, Double rentalRate, Integer milage, String carVersion, String color, Boolean isRented, Integer rentCounter) {
+    public Car(String carName, String plateNumber, String brand, int rentalRate, Integer milage, String carVersion, String color, Boolean isRented, Integer rentCounter) {
         this.carName = carName;
         this.plateNumber = plateNumber;
         this.brand = brand;
@@ -38,7 +38,7 @@ public class Car {
         return brand;
     }
 
-    public Double getRentalRate() {
+    public int getRentalRate() {
         return rentalRate;
     }
 
@@ -67,7 +67,7 @@ public class Car {
         this.brand = brand;
     }
 
-    public void setRentalRate(Double rentalRate) {
+    public void setRentalRate(int rentalRate) {
         this.rentalRate = rentalRate;
     }
 
